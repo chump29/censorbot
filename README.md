@@ -24,7 +24,7 @@
 
 ### 🔗 Invite Link <!-- markdownlint-disable-line MD001 -->
 
-[Add CensorBot](https://discord.com/oauth2/authorize?client_id=1559690040861532191&permissions=93184&integration_type=0&scope=bot)
+[Add CensorBot](https://discord.com/oauth2/authorize?client_id=1559690040861532191&permissions=536964096&integration_type=0&scope=bot)
 
 ---
 
@@ -36,6 +36,7 @@
 |:------------------:|
 |     EmbedLinks     |
 |   ManageMessages   |
+|   ManageWebhooks   |
 | ReadMessageHistory |
 |    SendMessages    |
 |    ViewChannel     |
