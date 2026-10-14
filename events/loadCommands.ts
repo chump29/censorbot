@@ -1,0 +1,31 @@
+import { join } from "node:path"
+
+import { error } from "@postfmly/logger"
+
+import { type Client, Events, type Interaction } from "discord.js"
+
+interface IClientReady {
+  invoke: (client: Client) => Promise<void>
+}
+
+interface IInteractionCreate {
+  invoke: (interaction: Interaction) => Promise<void>
+}
+
+const loadCommands = async (client: Client): Promise<void> => {
+  const interactionCreate: IInteractionCreate = await import(join(import.meta.dir, `${Events.InteractionCreate}.ts`))
+  client.on(Events.InteractionCreate, async (interaction: Interaction): Promise<void> => {
+    try {
+      await interactionCreate.invoke(interaction)
+    } catch (e: unknown) {
+      error(`❌ ${"commandName" in interaction ? interaction.commandName : "Unknown"}:`, e)
+    }
+  })
+
+  const clientReady: IClientReady = await import(join(import.meta.dir, `${Events.ClientReady}.ts`))
+  client.once(Events.ClientReady, async (c: Client): Promise<void> => {
+    await clientReady.invoke(c)
+  })
+}
+
+export { loadCommands }

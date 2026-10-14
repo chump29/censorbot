@@ -1,0 +1,32 @@
+diff --git a/index.js b/index.js
+index d95a4896b97ccfca13d2058cc9603b3baa3f0fda..0de35f406374f2fb4438bd8a34c6bdf81ab98540 100644
+--- a/index.js
++++ b/index.js
+@@ -30,17 +30,18 @@ export function filterText(text, options = {}) {
+ 
+   const sorted = [...words].sort((a, b) => b.word.length - a.word.length);
+ 
+-  for (const entry of sorted) {
+-    if (entry.intensity < minIntensity) continue;
+-    if (categories && !categories.some(c => entry.categories.includes(c))) continue;
++for (const entry of sorted) {
++  if (entry.intensity < minIntensity) continue;
++  if (categories && !categories.some(c => entry.categories.includes(c))) continue;
+ 
+-    const escaped = entry.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+-    const regex = new RegExp(`\\b${escaped}\\b`, 'gi');
+-    if (regex.test(result)) {
+-      matched.push(entry);
+-      result = result.replace(regex, replacement);
+-    }
++  const escaped = entry.word.replace(/[.*+?^\${}()|[\]\\-]/g, '\\$&');
++  const escapedRep = replacement.replace(/[.*+?^\${}()|[\]\\-]/g, '\\$&');
++  const regex = new RegExp(`(?<!\\w)${escaped}(?!\\w)(?![^${escapedRep}]*${escapedRep})`, 'gi');
++  if (regex.test(result)) {
++    matched.push(entry);
++    result = result.replace(regex, (match) => `${replacement}${match}${replacement}`);
+   }
++}
+ 
+   return { clean: result, matched };
+ }

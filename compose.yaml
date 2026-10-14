@@ -1,0 +1,19 @@
+services:
+  censorbot:
+    container_name: censorbot
+    image: git.postfmly.com/admin/censorbot:arm64
+    restart: unless-stopped
+    ports:
+      - "8011:8011"
+    environment:
+      - LOGO_PORT=8011
+      - LOGO_URL=https://censorbot.postfmly.us/censorbot.webp
+      - TZ=America/Chicago
+    env_file: .env
+    labels:
+      - wud.display.name=CensorBot
+      - homepage.group=Personal
+      - homepage.name=CensorBot
+      - homepage.icon=https://censorbot.postfmly.com/censorbot.webp
+
+networks: {}

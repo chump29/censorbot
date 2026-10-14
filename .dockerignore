@@ -1,0 +1,12 @@
+*
+
+!.husky/prepare.min.mjs
+!bun.lock
+!db/
+!events/
+!healthcheck.sh
+!index.ts
+!package.json
+!patches/
+!tsconfig.json
+!utils/
