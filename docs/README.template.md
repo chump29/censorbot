@@ -56,7 +56,6 @@
 |     📝 Description      | 📌 Variable |  {...} Value   |
 |:-----------------------:|:-----------:|:--------------:|
 |        Activity         |  ACTIVITY   |   Censoring    |
-|       Channel ID        | CHANNEL_ID  |     \<id>      |
 | Embed Color<sup>1</sup> |    COLOR    |    #78866b     |
 |          Debug          |    DEBUG    | true/**false** |
 |    Level<sup>2</sup>    |    LEVEL    |       3        |

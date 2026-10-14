@@ -11,12 +11,6 @@ describe("env", (): void => {
     expect(env.ACTIVITY.length).toBeGreaterThan(0)
   })
 
-  test("CHANNEL_ID", (): void => {
-    expectTypeOf(env.CHANNEL_ID).toEqualTypeOf<string>()
-
-    expect(env.CHANNEL_ID.length).toBeGreaterThan(0)
-  })
-
   test("COLOR", (): void => {
     expectTypeOf(env.COLOR).toEqualTypeOf<string>()
 

@@ -8,7 +8,7 @@
 ![discord.js](https://img.shields.io/badge/discord.js-^14.27.0-informational?style=plastic&logo=discord.js)
 
 ![CodeQL](https://github.com/chump29/censorbot/workflows/CodeQL/badge.svg) &nbsp;
-![Coverage](https://img.shields.io/badge/Coverage-85.37%25-success?style=plastic&logo=jest)
+![Coverage](https://img.shields.io/badge/Coverage-84.95%25-success?style=plastic&logo=jest)
 
 ![NO AI](https://img.shields.io/badge/NO-AI-orange?style=plastic "NO AI") &nbsp;
 ![License](https://img.shields.io/github/license/chump29/censorbot?style=plastic&color=blueviolet&label=License&logo=gplv3 "GPLv3") &nbsp; <!-- markdownlint-disable MD013 -->
@@ -56,7 +56,6 @@
 |     📝 Description      | 📌 Variable |  {...} Value   |
 |:-----------------------:|:-----------:|:--------------:|
 |        Activity         |  ACTIVITY   |   Censoring    |
-|       Channel ID        | CHANNEL_ID  |     \<id>      |
 | Embed Color<sup>1</sup> |    COLOR    |    #78866b     |
 |          Debug          |    DEBUG    | true/**false** |
 |    Level<sup>2</sup>    |    LEVEL    |       3        |

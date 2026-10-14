@@ -4,12 +4,9 @@ import { type Optional } from "@postfmly/types"
 import { bool, cleanEnv, type ExactValidator, makeExactValidator, str, url } from "envalid"
 import { anyOf, caseInsensitive, charIn, createRegExp, exactly, wordChar } from "magic-regexp"
 import {
-  digits,
   integer,
   literal,
-  maxLength,
   maxValue,
-  minLength,
   minValue,
   nonEmpty,
   parse,
@@ -20,9 +17,6 @@ import {
   trim,
   union
 } from "valibot"
-
-const MIN_ID_LEN: number = 17
-const MAX_ID_LEN: number = 19
 
 const COLOR_LEN: number = 6
 
@@ -40,7 +34,6 @@ const HMAC_MIN_LEN: number = 27
 const HMAC_MAX_LEN: number = 38
 
 const StringSchema = pipe(string(), trim(), nonEmpty())
-const IdSchema = pipe(StringSchema, digits(), minLength(MIN_ID_LEN), maxLength(MAX_ID_LEN))
 const ColorSchema = pipe(
   StringSchema,
   regex(
@@ -69,7 +62,6 @@ const TokenSchema = pipe(
   )
 )
 
-const idValidator: ExactValidator<string> = makeExactValidator<string>((s: string): string => parse(IdSchema, s))
 const colorValidator: ExactValidator<string> = makeExactValidator<string>((s: string): string => parse(ColorSchema, s))
 const levelValidator: ExactValidator<number> = makeExactValidator<number>((s: string): number => parse(LevelSchema, s))
 const portValidator: ExactValidator<"random" | number> = makeExactValidator<"random" | number>(
@@ -77,19 +69,15 @@ const portValidator: ExactValidator<"random" | number> = makeExactValidator<"ran
 )
 const tokenValidator: ExactValidator<string> = makeExactValidator<string>((s: string): string => parse(TokenSchema, s))
 
-let fakeId: Optional<string>
 let fakeURL: Optional<string>
 let fakeToken: Optional<string>
 
 if (Bun.env.NODE_ENV === "test") {
   const { fakerEN_US: fake } = await import("@faker-js/faker")
 
-  let chars: string = "[0-9]"
-  fakeId = fake.helpers.fromRegExp(`${chars}{${MIN_ID_LEN},${MAX_ID_LEN}}`)
-
   fakeURL = fake.image.url({ height: 64, width: 64 })
 
-  chars = "[a-zA-Z0-9]"
+  const chars: string = "[a-zA-Z0-9]"
   fakeToken = fake.helpers.fromRegExp(
     `${chars}{${UID_MIN_LEN},${UID_MAX_LEN}}[.]${chars}{${TS_MIN_LEN},${TS_MAX_LEN}}[.]${chars}{${HMAC_MIN_LEN},${HMAC_MAX_LEN}}`
   )
@@ -97,7 +85,6 @@ if (Bun.env.NODE_ENV === "test") {
 
 const env = cleanEnv(Bun.env, {
   ACTIVITY: str({ default: "Censoring" }),
-  CHANNEL_ID: idValidator({ testDefault: fakeId }),
   COLOR: colorValidator({ default: "#78866b" }),
   DEBUG: bool({ default: false, testDefault: true }),
   LEVEL: levelValidator({ default: 3 }),
@@ -110,7 +97,7 @@ const env = cleanEnv(Bun.env, {
 })
 
 if (import.meta.main) {
-  printVars(env, ["CHANNEL_ID", "TOKEN"])
+  printVars(env, ["TOKEN"])
 }
 
 export { env, MAX_LEVEL }
