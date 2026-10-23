@@ -44,7 +44,7 @@
     "updates": "bunx --bun npm-check-updates --dep prod,dev --cooldown 0 --install never --packageManager bun --peer"
   },
   "lint-staged": {
-    "*.{json,ts}": "bun run --bun biome ci --no-errors-on-unmatched --error-on-warnings"
+    "*.{json,md,ts,yaml}": "bun run --bun biome ci --no-errors-on-unmatched --error-on-warnings"
   },
   "dependencies": {
     "@jarrodek/pluralize": "^1.0.2",
