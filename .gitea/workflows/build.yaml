@@ -35,7 +35,7 @@ jobs:
         uses: streetsidesoftware/cspell-action@v9
         with:
           check_dot_files: true
-          config: node_modules/@postfmly/config/.vscode/cspell.json
+          config: ./node_modules/@postfmly/config/.vscode/cspell.json
           incremental_files_only: false
           verbose: true
 
