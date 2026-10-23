@@ -13,6 +13,14 @@ _discord=$(jq -r '.dependencies."discord.js" // "❓"' ../package.json)
 export _discord
 echo -e " • discord.js: $_discord"
 
+_envalid=$(jq -r '.dependencies.envalid // "❓"' ../package.json)
+export _envalid
+echo -e " • Envalid: $_envalid"
+
+_valibot=$(jq -r '.dependencies.valibot // "❓"' ../package.json)
+export _valibot
+echo -e " • Valibot: $_valibot"
+
 echo -e "\n🧪 Running tests…"
 bun run test:coverage
 
