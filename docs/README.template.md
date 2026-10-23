@@ -1,4 +1,4 @@
-# ![CensorBot](./utils/images/censorbot.webp) CensorBot
+# ![CensorBot](./utils/images/censorbot.webp "CensorBot") CensorBot
 
 > - CensorBot for Discord
 
