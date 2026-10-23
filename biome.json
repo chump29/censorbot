@@ -5,6 +5,6 @@
     "includes": ["!!.husky/prepare.*"]
   },
   "javascript": {
-    "globals": ["assertMock", "createMock"]
+    "globals": ["createMock", "getMock"]
   }
 }

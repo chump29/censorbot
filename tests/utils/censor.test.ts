@@ -40,18 +40,18 @@ describe("censor", (): void => {
 
     await Censor.checkForWord(msg)
 
-    expect(assertMock(msg.delete)).toHaveBeenCalledTimes(1)
+    expect(getMock(msg.delete)).toHaveBeenCalledTimes(1)
 
     const hook: Webhook = await msg.channel.createWebhook({
       avatar: msg.author.displayAvatarURL(),
       name: msg.member.displayName
     })
 
-    expect(assertMock(hook.send)).toHaveBeenCalledTimes(1)
-    expect(assertMock(hook.delete)).toHaveBeenCalledTimes(1)
+    expect(getMock(hook.send)).toHaveBeenCalledTimes(1)
+    expect(getMock(hook.delete)).toHaveBeenCalledTimes(1)
 
     const { calls } = hook.send.mocked
-    const payload = calls?.[0]?.[0]
+    const payload: unknown = calls?.[0]?.[0]
     if (!payload || typeof payload !== "object" || !("content" in payload) || typeof payload.content !== "string") {
       throw new Error("Payload or content not found")
     }

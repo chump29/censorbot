@@ -1,17 +1,17 @@
 import { jest } from "bun:test"
 
-function constructProxy<T>(target: object, handler: ProxyHandler<object>): Mock<T>
-function constructProxy(target: object, handler: ProxyHandler<object>): unknown {
+function wrapper<T>(target: object, handler: ProxyHandler<object>): Mock<T>
+function wrapper(target: object, handler: ProxyHandler<object>): unknown {
   return new Proxy(target, handler)
 }
 
-const proxyToRawMockMap = new WeakMap<object, unknown>()
+const spyMapper = new WeakMap<object, unknown>()
 
 const mockFactory = <T>(props?: MockProps<T>): unknown => {
-  const seed: Record<PropertyKey, unknown> = props ?? {}
+  const mapper: Record<PropertyKey, unknown> = props ?? {}
   const cache = new Map<PropertyKey, unknown>()
 
-  const handler = (localSeed: Record<PropertyKey, unknown>): ProxyHandler<object> => ({
+  const handler = (scope: Record<PropertyKey, unknown>): ProxyHandler<object> => ({
     get(target: object, prop: string | symbol): unknown {
       if (prop === "mocked") {
         return new Proxy(target, {
@@ -29,8 +29,8 @@ const mockFactory = <T>(props?: MockProps<T>): unknown => {
         return undefined
       }
 
-      if (Object.hasOwn(localSeed, prop)) {
-        return Reflect.get(localSeed, prop)
+      if (Object.hasOwn(scope, prop)) {
+        return Reflect.get(scope, prop)
       }
 
       if (Object.hasOwn(target, prop)) {
@@ -42,26 +42,26 @@ const mockFactory = <T>(props?: MockProps<T>): unknown => {
         return cached
       }
 
-      const rawValue: unknown = typeof prop === "string" ? localSeed[prop] : undefined
+      const value: unknown = typeof prop === "string" ? scope[prop] : undefined
 
-      let subSeed: Record<PropertyKey, unknown> = {}
-      if (rawValue && typeof rawValue === "object" && !Array.isArray(rawValue)) {
-        subSeed = { ...rawValue }
+      let nestedScope: Record<PropertyKey, unknown> = {}
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        nestedScope = { ...value }
       }
 
-      const childHandler: ProxyHandler<object> = handler(subSeed)
+      const spyHandler: ProxyHandler<object> = handler(nestedScope)
 
-      const newMethod = jest.fn().mockResolvedValue(constructProxy({}, childHandler))
+      const spy = jest.fn().mockResolvedValue(wrapper({}, spyHandler))
 
-      Object.defineProperty(newMethod, "mocked", {
+      Object.defineProperty(spy, "mocked", {
         get(): unknown {
-          return newMethod
+          return spy
         }
       })
 
-      const nestedProxy = constructProxy(newMethod, childHandler)
+      const nestedProxy = wrapper(spy, spyHandler)
 
-      proxyToRawMockMap.set(nestedProxy, newMethod)
+      spyMapper.set(nestedProxy, spy)
 
       cache.set(prop, nestedProxy)
 
@@ -69,22 +69,22 @@ const mockFactory = <T>(props?: MockProps<T>): unknown => {
     }
   })
 
-  return constructProxy<T>({}, handler(seed))
+  return wrapper<T>({}, handler(mapper))
 }
 
 Object.defineProperty(globalThis, "createMock", {
   value: mockFactory
 })
 
-Object.defineProperty(globalThis, "assertMock", {
-  value: <Args extends unknown[], Return>(fn: (...args: Args) => Return): unknown => {
-    if (typeof fn === "function") {
-      const rawMock = proxyToRawMockMap.get(fn)
-      if (rawMock !== undefined) {
-        return rawMock
+Object.defineProperty(globalThis, "getMock", {
+  value: <Args extends unknown[], Return>(f: (...args: Args) => Return): unknown => {
+    if (typeof f === "function") {
+      const spy: unknown = spyMapper.get(f)
+      if (spy !== undefined) {
+        return spy
       }
     }
 
-    return fn
+    return f
   }
 })

@@ -65,11 +65,11 @@ await Promise.all(
 
         expect(await invoke(interaction)).toBeUndefined()
 
-        expect(assertMock(interaction.deferReply)).toHaveBeenCalledTimes(1)
-        expect(assertMock(interaction.editReply)).toHaveBeenCalledTimes(1)
+        expect(getMock(interaction.deferReply)).toHaveBeenCalledTimes(1)
+        expect(getMock(interaction.editReply)).toHaveBeenCalledTimes(1)
 
         const { calls } = interaction.editReply.mocked
-        const payload = calls[0]?.[0]
+        const payload: unknown = calls[0]?.[0]
         if (!payload || typeof payload !== "object") {
           throw new Error("Payload not found")
         }
@@ -80,12 +80,12 @@ await Promise.all(
               throw new Error("Embeds not found")
             }
 
-            const firstEmbed: unknown = payload.embeds[0]
-            if (!firstEmbed || typeof firstEmbed !== "object" || Array.isArray(firstEmbed)) {
+            const embed: unknown = payload.embeds[0]
+            if (!embed || typeof embed !== "object" || Array.isArray(embed)) {
               throw new Error("Embed not found")
             }
 
-            const { data }: { data: APIEmbed } = EmbedBuilder.from(firstEmbed)
+            const { data }: { data: APIEmbed } = EmbedBuilder.from(embed)
 
             expect(decimalToHex(data.color)).toBe(env.COLOR)
             expect(data.author?.icon_url).toBe(env.LOGO_URL)
