@@ -33,7 +33,7 @@
 #### Role Permissions:
 
 |   ⚙️ Permission    |
-|:------------------:|
+| :----------------: |
 |     EmbedLinks     |
 |   ManageMessages   |
 |   ManageWebhooks   |
@@ -44,7 +44,7 @@
 #### Commands:
 
 | 📋 Task | 🔧 Command | ⚙️ Permission |
-|:-------:|:----------:|:-------------:|
+| :-----: | :--------: | :-----------: |
 |  Info   |  `/info`   |     None      |
 |  Ping   |  `/ping`   |     None      |
 
@@ -55,7 +55,7 @@
 #### Environment Variables:
 
 |     📝 Description      | 📌 Variable |  {...} Value   |
-|:-----------------------:|:-----------:|:--------------:|
+| :---------------------: | :---------: | :------------: |
 |        Activity         |  ACTIVITY   |   Censoring    |
 | Embed Color<sup>1</sup> |    COLOR    |    #78866b     |
 |          Debug          |    DEBUG    | true/**false** |
@@ -70,7 +70,7 @@
 ##### From `@postfmly/logoserver`:
 
 | 📝 Description | 📌 Variable |    {...} Value    |
-|:--------------:|:-----------:|:-----------------:|
+| :------------: | :---------: | :---------------: |
 |   Logo Name    |  LOGO_NAME  |  censorbot.webp   |
 |   Local Path   |  LOGO_PATH  |  ./utils/images   |
 |      Port      |  LOGO_PORT  | **Random**/[port] |
@@ -78,12 +78,12 @@
 
 ##### From `@postfmly/checkrate`:
 
-###### *NOTE: Rate limited to 1 request per 1 second*
+###### _NOTE: Rate limited to 1 request per 1 second_
 
 #### Deployment:
 
 |  📜 Script  |  🔧 Command   |
-|:-----------:|:-------------:|
+| :---------: | :-----------: |
 |    Full     | `./build.sh`  |
 | Docker Only | `./docker.sh` |
 

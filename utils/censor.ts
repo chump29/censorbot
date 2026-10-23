@@ -1,8 +1,8 @@
 import { info } from "@postfmly/logger"
 
 import { default as pluralize } from "@jarrodek/pluralize"
-import { containsProfanity, filterText, getByIntensity, type Intensity } from "better-profane-words"
-import { type Message, type TextChannel, type Webhook } from "discord.js"
+import { containsProfanity, filterText, getByIntensity } from "better-profane-words"
+import { ChannelType, type Message, type Webhook } from "discord.js"
 
 import { env, MAX_LEVEL } from "./env.ts"
 
@@ -16,7 +16,7 @@ class CensorBot implements ICensorBot {
   COUNT: number = 0
 
   init(): void {
-    this.COUNT = getByIntensity(env.LEVEL as Intensity, MAX_LEVEL as Intensity).length
+    this.COUNT = getByIntensity(env.LEVEL, MAX_LEVEL).length
     if (this.COUNT === 0) {
       throw new Error("Could not find words matching length")
     }
@@ -26,25 +26,27 @@ class CensorBot implements ICensorBot {
     }
   }
 
-  // biome-ignore lint/nursery/useThisInClassMethods: not making static
+  // biome-ignore lint/style/useThisInClassMethods: not making static
   async checkForWord(message: Message): Promise<void> {
     if (!message.member || message.member.user.bot) {
       return
     }
 
-    if (containsProfanity(message.content, { minIntensity: env.LEVEL as Intensity })) {
+    if (containsProfanity(message.content, { minIntensity: env.LEVEL })) {
       await message.delete()
 
-      const hook: Webhook = await (message.channel as TextChannel).createWebhook({
-        avatar: message.author.displayAvatarURL({ forceStatic: false }),
-        name: message.member.displayName
-      })
+      if (message.channel.type === ChannelType.GuildText) {
+        const hook: Webhook = await message.channel.createWebhook({
+          avatar: message.author.displayAvatarURL({ forceStatic: false }),
+          name: message.member.displayName
+        })
 
-      await hook.send({
-        content: filterText(message.content, { minIntensity: env.LEVEL as Intensity, replacement: "||" }).clean
-      })
+        await hook.send({
+          content: filterText(message.content, { minIntensity: env.LEVEL, replacement: "||" }).clean
+        })
 
-      await hook.delete()
+        await hook.delete()
+      }
     }
   }
 }

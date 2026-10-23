@@ -3,5 +3,8 @@
   "extends": ["@postfmly/config/biome.json"],
   "files": {
     "includes": ["!!.husky/prepare.*"]
+  },
+  "javascript": {
+    "globals": ["assertMock", "createMock"]
   }
 }

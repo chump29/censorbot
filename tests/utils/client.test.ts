@@ -8,25 +8,26 @@ import { type ClientUser, type Client as DiscordClient } from "discord.js"
 import { Client } from "../../utils/client.ts"
 import { env } from "../../utils/env.ts"
 
-let infoSpy: jest.Mock
-let exitSpy: jest.Mock
+// * NOTE: suppress console output
+const infoSpy = spyOn(console, "info").mockImplementation((): void => undefined)
+// biome-ignore lint/nursery/noUnsafeTypeAssertion: suppress output
+const exitSpy = spyOn(process, "exit").mockImplementation((): never => undefined as never)
 
 const tag: string = `${env.NAME}#${fake.string.numeric({ allowLeadingZeros: false, length: 4 })}`
 
 beforeAll(async (): Promise<void> => {
-  infoSpy = spyOn(console, "info").mockImplementation((): void => undefined) // suppress
-  exitSpy = spyOn(process, "exit").mockImplementation((): never => undefined as never)
-
-  await Client.init({
-    destroy: jest.fn(),
-    login: jest.fn(),
-    on: jest.fn(),
-    once: jest.fn(),
-    user: {
-      displayName: env.NAME,
-      tag
-    } as ClientUser
-  } as unknown as DiscordClient)
+  await Client.init(
+    createMock<DiscordClient>({
+      destroy: jest.fn(),
+      login: jest.fn(),
+      on: jest.fn(),
+      once: jest.fn(),
+      user: createMock<ClientUser>({
+        displayName: env.NAME,
+        tag
+      })
+    })
+  )
 })
 
 describe("client", (): void => {

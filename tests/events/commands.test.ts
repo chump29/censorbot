@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises"
 import { default as path } from "node:path"
 
-import { beforeAll, describe, expect, jest, spyOn, test } from "bun:test"
+import { beforeAll, describe, expect, spyOn, test } from "bun:test"
 
 import { type Optional } from "@postfmly/types"
 
@@ -32,9 +32,10 @@ const dir: string = "events/commands"
 
 const commands: string[] = (await readdir(dir)).filter((file: string): boolean => file.endsWith(".ts"))
 
-beforeAll((): void => {
-  spyOn(console, "info").mockImplementation((): void => undefined) // suppress
+// * NOTE: suppress console output
+spyOn(console, "info").mockImplementation((): void => undefined)
 
+beforeAll((): void => {
   Censor.init()
 })
 
@@ -54,31 +55,37 @@ await Promise.all(
       })
 
       test("invoke", async (): Promise<void> => {
-        const interaction: ChatInputCommandInteraction = {
+        const interaction = createMock<ChatInputCommandInteraction>({
           createdTimestamp: fake.date.past().getTime(),
-          deferReply: jest.fn(),
-          editReply: jest.fn(),
-          user: {
+          user: createMock<User>({
             displayName: fake.internet.displayName(),
             username: fake.internet.username()
-          } as User
-        } as unknown as ChatInputCommandInteraction
+          })
+        })
 
         expect(await invoke(interaction)).toBeUndefined()
 
-        expect(interaction.deferReply).toHaveBeenCalledTimes(1)
-        expect(interaction.editReply).toHaveBeenCalledTimes(1)
+        expect(assertMock(interaction.deferReply)).toHaveBeenCalledTimes(1)
+        expect(assertMock(interaction.editReply)).toHaveBeenCalledTimes(1)
 
-        const mockEditReply = interaction.editReply as ReturnType<typeof jest.fn>
-        const firstCallArgs = mockEditReply.mock.calls
-        const payload = firstCallArgs[0]?.[0]
-        if (!payload) {
+        const { calls } = interaction.editReply.mocked
+        const payload = calls[0]?.[0]
+        if (!payload || typeof payload !== "object") {
           throw new Error("Payload not found")
         }
 
         match<string, void>(name)
           .with("info", (): void => {
-            const { data }: { data: APIEmbed } = EmbedBuilder.from(payload.embeds?.[0])
+            if (!("embeds" in payload && Array.isArray(payload.embeds))) {
+              throw new Error("Embeds not found")
+            }
+
+            const firstEmbed: unknown = payload.embeds[0]
+            if (!firstEmbed || typeof firstEmbed !== "object" || Array.isArray(firstEmbed)) {
+              throw new Error("Embed not found")
+            }
+
+            const { data }: { data: APIEmbed } = EmbedBuilder.from(firstEmbed)
 
             expect(decimalToHex(data.color)).toBe(env.COLOR)
             expect(data.author?.icon_url).toBe(env.LOGO_URL)
@@ -87,7 +94,13 @@ await Promise.all(
             expect(data.description).not.toBeEmpty()
             expect(data.footer?.text).toEndWith(author.name)
           })
-          .with("ping", (): void => expect(payload.content).toInclude("Pong"))
+          .with("ping", (): void => {
+            if (!("content" in payload) || typeof payload.content !== "string") {
+              throw new Error("Content not found")
+            }
+
+            expect(payload.content).toInclude("Pong")
+          })
           .otherwise((): never => {
             throw new Error(`Payload tests not found for /${name}`)
           })

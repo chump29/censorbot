@@ -1,9 +1,12 @@
 import { printVars } from "@postfmly/logger"
 import { type Optional } from "@postfmly/types"
 
+import { type Intensity } from "better-profane-words"
+import { type HexColorString } from "discord.js"
 import { bool, cleanEnv, type ExactValidator, makeExactValidator, str, url } from "envalid"
 import { anyOf, caseInsensitive, charIn, createRegExp, exactly, wordChar } from "magic-regexp"
 import {
+  custom,
   integer,
   literal,
   maxValue,
@@ -20,8 +23,9 @@ import {
 
 const COLOR_LEN: number = 6
 
+// ! NOTE: Comes from Intensity
 const MIN_LEVEL: number = 1
-const MAX_LEVEL: number = 5
+const MAX_LEVEL: Intensity = 5
 
 const MIN_PORT: number = 1024
 const MAX_PORT: number = 65_535
@@ -41,9 +45,18 @@ const ColorSchema = pipe(
     createRegExp(exactly("#").at.lineStart(), charIn("0123456789abcdef").times(COLOR_LEN).at.lineEnd(), [
       caseInsensitive
     ])
-  )
+  ),
+  custom<HexColorString>((_: unknown): boolean => true)
 )
-const LevelSchema = pipe(StringSchema, toNumber(), integer(), minValue(MIN_LEVEL), maxValue(MAX_LEVEL))
+const LevelSchema = pipe(
+  StringSchema,
+  toNumber(),
+  integer(),
+  minValue(MIN_LEVEL),
+  maxValue(MAX_LEVEL),
+  custom<Intensity>((_: unknown): boolean => true)
+)
+
 const PortSchema = union([
   literal("random"),
   pipe(StringSchema, toNumber(), integer(), minValue(MIN_PORT), maxValue(MAX_PORT))
@@ -62,8 +75,12 @@ const TokenSchema = pipe(
   )
 )
 
-const colorValidator: ExactValidator<string> = makeExactValidator<string>((s: string): string => parse(ColorSchema, s))
-const levelValidator: ExactValidator<number> = makeExactValidator<number>((s: string): number => parse(LevelSchema, s))
+const colorValidator: ExactValidator<HexColorString> = makeExactValidator<HexColorString>(
+  (s: string): HexColorString => parse(ColorSchema, s)
+)
+const levelValidator: ExactValidator<Intensity> = makeExactValidator<Intensity>(
+  (s: string): Intensity => parse(LevelSchema, s)
+)
 const portValidator: ExactValidator<"random" | number> = makeExactValidator<"random" | number>(
   (s: string): "random" | number => parse(PortSchema, s)
 )
