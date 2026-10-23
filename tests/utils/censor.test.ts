@@ -19,24 +19,21 @@ describe("censor", (): void => {
 
     const sentence: string = fake.helpers.fake(`{{lorem.words(2)}} ${word} {{lorem.words(2)}}`)
 
-    const mergeChannelOverride = <M extends object, C extends object, G extends object>(
-      messageMock: M,
-      channelMock: C,
-      memberMock: G
-    ): M & { channel: C; member: G } => Object.assign(messageMock, { channel: channelMock, member: memberMock })
+    // * NOTE: gets around If
+    const merge = <M extends object, C extends object>(m: M, c: C): M & { channel: C } =>
+      Object.assign(m, { channel: c })
 
-    const channel: TextChannel = createMock<TextChannel>({
-      type: ChannelType.GuildText
+    const channel: TextChannel = createMock<TextChannel>({ type: ChannelType.GuildText })
+
+    const message: Message = createMock<Message>({
+      content: sentence,
+      member: createMock<GuildMember>({
+        displayName: fake.internet.displayName(),
+        user: createMock<User>({ bot: false })
+      })
     })
 
-    const member: GuildMember = createMock<GuildMember>({
-      displayName: fake.internet.displayName(),
-      user: createMock<User>({ bot: false })
-    })
-
-    const message: Message = createMock<Message>({ content: sentence })
-
-    const msg = mergeChannelOverride(message, channel, member)
+    const msg = merge(message, channel)
 
     await Censor.checkForWord(msg)
 
@@ -44,7 +41,8 @@ describe("censor", (): void => {
 
     const hook: Webhook = await msg.channel.createWebhook({
       avatar: msg.author.displayAvatarURL(),
-      name: msg.member.displayName
+      // biome-ignore lint/style/noNonNullAssertion: exists
+      name: msg.member!.displayName
     })
 
     expect(getMock(hook.send)).toHaveBeenCalledTimes(1)

@@ -18,14 +18,7 @@ const tag: string = `${env.NAME}#${fake.string.numeric({ allowLeadingZeros: fals
 beforeAll(async (): Promise<void> => {
   await Client.init(
     createMock<DiscordClient>({
-      destroy: jest.fn(),
-      login: jest.fn(),
-      on: jest.fn(),
-      once: jest.fn(),
-      user: createMock<ClientUser>({
-        displayName: env.NAME,
-        tag
-      })
+      user: createMock<ClientUser>({ displayName: env.NAME, tag })
     })
   )
 })
