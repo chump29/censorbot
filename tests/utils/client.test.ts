@@ -1,6 +1,6 @@
 import { default as process } from "node:process"
 
-import { beforeAll, describe, expect, jest, spyOn, test } from "bun:test"
+import { beforeAll, describe, expect, spyOn, test } from "bun:test"
 
 import { simpleFaker as fake } from "@faker-js/faker"
 import { type ClientUser, type Client as DiscordClient } from "discord.js"
