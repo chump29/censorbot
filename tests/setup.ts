@@ -1,4 +1,4 @@
-import { mock } from "bun:test"
+import { jest } from "bun:test"
 
 function constructProxy<T>(target: object, handler: ProxyHandler<object>): Mock<T>
 function constructProxy(target: object, handler: ProxyHandler<object>): unknown {
@@ -51,7 +51,7 @@ const mockFactory = <T>(props?: MockProps<T>): unknown => {
 
       const childHandler: ProxyHandler<object> = handler(subSeed)
 
-      const newMethod = mock((): Promise<unknown> => Promise.resolve(constructProxy({}, childHandler)))
+      const newMethod = jest.fn().mockResolvedValue(constructProxy({}, childHandler))
 
       Object.defineProperty(newMethod, "mocked", {
         get(): unknown {

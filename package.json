@@ -35,7 +35,7 @@
     "prod": "bun run --bun index.ts",
     "scan": "bun run scan:audit && bun run scan:cve && bun run scan:dupe",
     "scan:audit": "bun audit --production",
-    "scan:cve": "bunx --bun cve-lite-cli --check-maintenance --prod-only --only-used --usage --no-cache --usage",
+    "scan:cve": "bunx --bun cve-lite-cli --check-maintenance --prod-only --only-used",
     "scan:dupe": "bun dedupe --check",
     "test": "bun test --isolate --dots --preload ./tests/setup.ts --bail",
     "test:coverage": "bun test --isolate --dots --coverage --coverage-dir ./tests/coverage --coverage-reporter=text --coverage-reporter=lcov --preload ./tests/setup.ts --bail",
