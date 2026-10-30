@@ -1,10 +1,10 @@
-import { describe, expect, test } from "bun:test"
+import { describe, expect, jest, test } from "bun:test"
 
 import { type Optional } from "@postfmly/types"
 
 import { fakerEN_US as fake } from "@faker-js/faker"
 import { getByIntensity, type WordEntry } from "better-profane-words"
-import { ChannelType, type GuildMember, type Message, type TextChannel, type User, type Webhook } from "discord.js"
+import { type Channel, ChannelType, type GuildMember, type Message, type User, type Webhook } from "discord.js"
 
 import { Censor } from "../../utils/censor.ts"
 import { env, MAX_LEVEL } from "../../utils/env.ts"
@@ -17,38 +17,37 @@ describe("censor", (): void => {
 
     expect(word).not.toBeUndefined()
 
-    const sentence: string = fake.helpers.fake(`{{lorem.words(2)}} ${word} {{lorem.words(2)}}`)
+    const mockDelete: jest.Mock = jest.fn()
+    const mockWebhookDelete: jest.Mock = jest.fn()
+    const mockWebhookSend: jest.Mock = jest.fn()
 
-    // * NOTE: gets around If
-    const merge = <M extends object, C extends object>(m: M, c: C): M & { channel: C } =>
-      Object.assign(m, { channel: c })
-
-    const channel: TextChannel = createMock<TextChannel>({ type: ChannelType.GuildText })
-
-    const message: Message = createMock<Message>({
-      content: sentence,
+    const mockMessage: Message = createMock<Message>({
+      author: createMock<User>({
+        displayAvatarURL: jest.fn().mockReturnValue(fake.image.avatar())
+      }),
+      channel: createMock<Channel>({
+        createWebhook: createMock<Webhook>({
+          delete: mockWebhookDelete,
+          send: mockWebhookSend
+        }),
+        type: ChannelType.GuildText
+      }),
+      content: fake.helpers.fake(`{{lorem.words(2)}} ${word} {{lorem.words(2)}}`),
+      delete: mockDelete,
       member: createMock<GuildMember>({
         displayName: fake.internet.displayName(),
         user: createMock<User>({ bot: false })
       })
     })
 
-    const msg = merge(message, channel)
+    await Censor.checkForWord(mockMessage)
 
-    await Censor.checkForWord(msg)
+    expect(mockDelete).toHaveBeenCalledTimes(1)
 
-    expect(getMock(msg.delete)).toHaveBeenCalledTimes(1)
+    expect(mockWebhookSend).toHaveBeenCalledTimes(1)
+    expect(mockWebhookDelete).toHaveBeenCalledTimes(1)
 
-    const hook: Webhook = await msg.channel.createWebhook({
-      avatar: msg.author.displayAvatarURL(),
-      // biome-ignore lint/style/noNonNullAssertion: exists
-      name: msg.member!.displayName
-    })
-
-    expect(getMock(hook.send)).toHaveBeenCalledTimes(1)
-    expect(getMock(hook.delete)).toHaveBeenCalledTimes(1)
-
-    const { calls } = hook.send.mocked
+    const { calls } = mockWebhookSend.mock
     const payload: unknown = calls?.[0]?.[0]
     if (!payload || typeof payload !== "object" || !("content" in payload) || typeof payload.content !== "string") {
       throw new Error("Payload or content not found")

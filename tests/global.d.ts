@@ -22,10 +22,6 @@ declare global {
 
   function createMock<T>(props?: MockProps<T>): Mock<T>
 
-  function getMock<Args extends unknown[], Return>(
-    fn: (...args: Args) => Return
-  ): import("bun:test").jest.Mock<(...args: Args) => Return>
-
   interface Function {
     get mocked(): import("bun:test").jest.Mock<(...args: unknown[]) => unknown>["mock"]
   }

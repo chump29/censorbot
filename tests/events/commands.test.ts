@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises"
 import { default as path } from "node:path"
 
-import { beforeAll, describe, expect, spyOn, test } from "bun:test"
+import { beforeAll, describe, expect, jest, spyOn, test } from "bun:test"
 
 import { type Optional } from "@postfmly/types"
 
@@ -54,9 +54,14 @@ await Promise.all(
         expect(c.contexts ?? []).not.toBeEmpty()
       })
 
+      const mockDeferReply: jest.Mock = jest.fn()
+      const mockEditReply: jest.Mock = jest.fn()
+
       test("invoke", async (): Promise<void> => {
         const interaction = createMock<ChatInputCommandInteraction>({
           createdTimestamp: fake.date.past().getTime(),
+          deferReply: mockDeferReply,
+          editReply: mockEditReply,
           user: createMock<User>({
             displayName: fake.internet.displayName(),
             username: fake.internet.username()
@@ -65,10 +70,10 @@ await Promise.all(
 
         expect(await invoke(interaction)).toBeUndefined()
 
-        expect(getMock(interaction.deferReply)).toHaveBeenCalledTimes(1)
-        expect(getMock(interaction.editReply)).toHaveBeenCalledTimes(1)
+        expect(mockDeferReply).toHaveBeenCalledTimes(1)
+        expect(mockEditReply).toHaveBeenCalledTimes(1)
 
-        const { calls } = interaction.editReply.mocked
+        const { calls } = mockEditReply.mock
         const payload: unknown = calls[0]?.[0]
         if (!payload || typeof payload !== "object") {
           throw new Error("Payload not found")
