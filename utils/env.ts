@@ -6,7 +6,7 @@ import { type HexColorString } from "discord.js"
 import { bool, cleanEnv, type ExactValidator, makeExactValidator, str, url } from "envalid"
 import { anyOf, caseInsensitive, charIn, createRegExp, exactly, wordChar } from "magic-regexp"
 import {
-  custom,
+  guard,
   integer,
   literal,
   maxValue,
@@ -23,7 +23,7 @@ import {
 
 const COLOR_LEN: number = 6
 
-// ! NOTE: Comes from Intensity
+// ! NOTE: Comes from https://github.com/awdev1/better-profane-words/blob/main/index.d.ts#L18
 const MIN_LEVEL: number = 1
 const MAX_LEVEL: Intensity = 5
 
@@ -41,12 +41,13 @@ const StringSchema = pipe(string(), trim(), nonEmpty())
 const ColorSchema = pipe(
   StringSchema,
   regex(
-    // ! Desired: /^(?:#[\da-f]{6})$/i
-    createRegExp(exactly("#").at.lineStart(), charIn("0123456789abcdef").times(COLOR_LEN).at.lineEnd(), [
-      caseInsensitive
-    ])
+    createRegExp(
+      exactly("#").at.lineStart(),
+      charIn.from("0", "9").orChar.from("a", "f").times(COLOR_LEN).at.lineEnd(),
+      [caseInsensitive]
+    )
   ),
-  custom<HexColorString>((_: unknown): boolean => true)
+  guard((_: string): _ is HexColorString => true)
 )
 const LevelSchema = pipe(
   StringSchema,
@@ -54,9 +55,8 @@ const LevelSchema = pipe(
   integer(),
   minValue(MIN_LEVEL),
   maxValue(MAX_LEVEL),
-  custom<Intensity>((_: unknown): boolean => true)
+  guard((_: number): _ is Intensity => true)
 )
-
 const PortSchema = union([
   literal("random"),
   pipe(StringSchema, toNumber(), integer(), minValue(MIN_PORT), maxValue(MAX_PORT))

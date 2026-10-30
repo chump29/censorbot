@@ -1,11 +1,15 @@
 import { jest } from "bun:test"
 
+type StrictFunction = (...args: unknown[]) => unknown
+type StrictAsyncFunction = (...args: unknown[]) => Promise<unknown>
+type TrackedMockInstance = ReturnType<typeof jest.fn<StrictFunction>>
+
 function wrapper<T>(target: object, handler: ProxyHandler<object>): Mock<T>
 function wrapper(target: object, handler: ProxyHandler<object>): unknown {
   return new Proxy(target, handler)
 }
 
-const spyMapper: WeakMap<object, unknown> = new WeakMap<object, unknown>()
+const spyMapper: WeakMap<object, TrackedMockInstance> = new WeakMap<object, TrackedMockInstance>()
 
 const isObject = (val: unknown): val is Record<PropertyKey, unknown> =>
   val !== null && typeof val === "object" && !Array.isArray(val)
@@ -13,18 +17,18 @@ const isObject = (val: unknown): val is Record<PropertyKey, unknown> =>
 const isMockTarget = (val: unknown): val is Record<PropertyKey, unknown> =>
   val !== null && (typeof val === "object" || typeof val === "function")
 
-const isCallable = (val: unknown): val is (...args: unknown[]) => unknown => typeof val === "function"
+const isCallable = (val: unknown): val is TrackedMockInstance => typeof val === "function"
 
-const mockFactory = <T>(props?: MockProps<T>): unknown => {
+const mockFactory = (props?: Record<PropertyKey, unknown>): unknown => {
   const mapper: Record<PropertyKey, unknown> = props ?? {}
 
   const handler = (
     scope: Record<PropertyKey, unknown>,
     currentPathCache: Map<unknown, unknown>
   ): ProxyHandler<object> => ({
-    apply(target: object, _thisArg: unknown, argArray: unknown[]): unknown {
+    apply(target: object, thisArg: unknown, argArray: unknown[]): unknown {
       if (typeof target === "function") {
-        return target(...argArray)
+        return Reflect.apply(target, thisArg, argArray)
       }
 
       return undefined
@@ -33,7 +37,7 @@ const mockFactory = <T>(props?: MockProps<T>): unknown => {
     get(target: object, prop: string | symbol): unknown {
       if (prop === "mocked") {
         const underlyingSpy: unknown = spyMapper.get(target)
-        const activeSpy: object = typeof underlyingSpy === "function" ? underlyingSpy : target
+        const activeSpy: object = isCallable(underlyingSpy) ? underlyingSpy : target
 
         return new Proxy(activeSpy, {
           get(mockTarget: object, mockProp: string | symbol): unknown {
@@ -82,7 +86,7 @@ const mockFactory = <T>(props?: MockProps<T>): unknown => {
 
       if (isTrackedMock && isMockTarget(value)) {
         const spy: unknown = spyMapper.get(value)
-        const activeSpy: (...args: unknown[]) => unknown = isCallable(spy) ? spy : jest.fn()
+        const activeSpy: TrackedMockInstance = isCallable(spy) ? spy : jest.fn<StrictAsyncFunction>()
 
         const targetShell = (): Promise<unknown> => Promise.resolve(value)
         spyMapper.set(targetShell, activeSpy)
@@ -91,9 +95,9 @@ const mockFactory = <T>(props?: MockProps<T>): unknown => {
         const nestedProxy: unknown = wrapper(targetShell, handler(nextScope, new Map()))
 
         if (isObject(activeSpy)) {
-          const resolver: unknown = Reflect.get(activeSpy, "mockResolvedValue")
+          const resolver: unknown = Reflect.get(activeSpy, "mockImplementation")
           if (isCallable(resolver)) {
-            Reflect.apply(resolver, activeSpy, [nestedProxy])
+            Reflect.apply(resolver, activeSpy, [(): Promise<unknown> => Promise.resolve(nestedProxy)])
           }
         }
 
@@ -128,7 +132,7 @@ const mockFactory = <T>(props?: MockProps<T>): unknown => {
       }
 
       const spyHandler: ProxyHandler<object> = handler(nestedScope, new Map())
-      const spy: jest.Mock = jest.fn()
+      const spy: TrackedMockInstance = jest.fn<StrictAsyncFunction>()
 
       Object.defineProperty(spy, "mocked", {
         configurable: true,
@@ -141,7 +145,8 @@ const mockFactory = <T>(props?: MockProps<T>): unknown => {
       spyMapper.set(targetShell, spy)
 
       const nestedProxy: unknown = wrapper(targetShell, spyHandler)
-      spy.mockResolvedValue(nestedProxy)
+
+      spy.mockImplementation((): Promise<unknown> => Promise.resolve(nestedProxy))
 
       if (isObject(nestedProxy)) {
         spyMapper.set(nestedProxy, spy)
@@ -182,9 +187,9 @@ const mockFactory = <T>(props?: MockProps<T>): unknown => {
   })
 
   const rootTarget: object = {}
-  const rootProxy: unknown = wrapper<T>(rootTarget, handler(mapper, new Map()))
+  const rootProxy: unknown = wrapper(rootTarget, handler(mapper, new Map()))
 
-  const rootSpy: jest.Mock = jest.fn()
+  const rootSpy: TrackedMockInstance = jest.fn<StrictFunction>()
   if (isObject(rootProxy)) {
     spyMapper.set(rootProxy, rootSpy)
   }

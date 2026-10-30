@@ -14,16 +14,24 @@ declare global {
       toString: () => string
     }
 
-  type Mock<T> = T extends unknown ? BaseMock<T> & T : never
+  type HandleUnderscoreProps<T> = {
+    [K in keyof T as K extends `_${string}` ? K : never]?: T[K]
+  }
+
+  type Mock<T> = T extends unknown ? BaseMock<T> & T & HandleUnderscoreProps<T> : never
 
   type MockProps<T> = {
-    [K in keyof T]?: T[K] extends object ? MockProps<T[K]> | unknown : T[K]
+    [K in keyof T]?: T[K] extends (...args: unknown[]) => unknown
+      ? T[K] | ((...args: unknown[]) => unknown)
+      : T[K] extends object
+        ? MockProps<T[K]> | Mock<T[K]> | object
+        : T[K]
   }
 
   function createMock<T>(props?: MockProps<T>): Mock<T>
 
   interface Function {
-    get mocked(): import("bun:test").jest.Mock<(...args: unknown[]) => unknown>["mock"]
+    get mocked(): import("bun:test").Mock<(...args: unknown[]) => unknown>["mock"]
   }
 }
 

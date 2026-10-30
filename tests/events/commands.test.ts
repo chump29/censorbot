@@ -54,8 +54,10 @@ await Promise.all(
         expect(c.contexts ?? []).not.toBeEmpty()
       })
 
-      const mockDeferReply: jest.Mock = jest.fn()
-      const mockEditReply: jest.Mock = jest.fn()
+      const [mockDeferReply, mockEditReply] = [
+        jest.fn<ChatInputCommandInteraction["deferReply"]>(),
+        jest.fn<ChatInputCommandInteraction["editReply"]>()
+      ]
 
       test("invoke", async (): Promise<void> => {
         const interaction = createMock<ChatInputCommandInteraction>({
@@ -70,8 +72,8 @@ await Promise.all(
 
         expect(await invoke(interaction)).toBeUndefined()
 
-        expect(mockDeferReply).toHaveBeenCalledTimes(1)
-        expect(mockEditReply).toHaveBeenCalledTimes(1)
+        expect(mockDeferReply).toHaveBeenCalledOnce()
+        expect(mockEditReply).toHaveBeenCalledOnce()
 
         const { calls } = mockEditReply.mock
         const payload: unknown = calls[0]?.[0]

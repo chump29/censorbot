@@ -7,13 +7,14 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  BUN_INSTALL_CACHE_DIR: /tmp/.bun-cache
-  NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-
 jobs:
   check:
     runs-on: amd64
+
+    env:
+      BUN_INSTALL_CACHE_DIR: /tmp/.bun-cache
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -49,7 +50,9 @@ jobs:
 
   amd64:
     needs: [check]
+
     runs-on: amd64
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -66,7 +69,9 @@ jobs:
 
   arm64:
     needs: [check]
+
     runs-on: arm64
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -83,7 +88,9 @@ jobs:
 
   manifest:
     needs: [amd64, arm64]
+
     runs-on: amd64
+
     steps:
       - name: Log into repository
         uses: docker/login-action@v4

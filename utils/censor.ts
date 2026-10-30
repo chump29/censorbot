@@ -37,7 +37,7 @@ class CensorBot implements ICensorBot {
 
       if (message.channel.type === ChannelType.GuildText) {
         const hook: Webhook = await message.channel.createWebhook({
-          avatar: message.author.displayAvatarURL({ forceStatic: false }),
+          avatar: message.author.displayAvatarURL(),
           name: message.member.displayName
         })
 

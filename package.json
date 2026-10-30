@@ -37,10 +37,10 @@
     "scan:audit": "bun audit --production",
     "scan:cve": "bun run --bun cve-lite --check-maintenance --prod-only --only-used",
     "scan:dupe": "bun dedupe --check",
-    "test": "bun test --isolate --dots --preload ./tests/setup.ts --bail",
-    "test:coverage": "bun test --isolate --dots --coverage --coverage-dir ./tests/coverage --coverage-reporter=text --coverage-reporter=lcov --preload ./tests/setup.ts --bail",
-    "test:coverage:full": "bun test --isolate --coverage --coverage-dir ./tests/coverage --coverage-reporter=text --coverage-reporter=lcov --preload ./tests/setup.ts --bail",
-    "test:full": "bun test --isolate --preload ./tests/setup.ts --bail",
+    "test": "bun test --isolate --dots --preload ./tests/setup.ts --bail --check",
+    "test:coverage": "bun test --isolate --dots --coverage-dir ./tests/coverage --coverage-reporter=text --coverage-reporter=lcov --preload ./tests/setup.ts --bail --check",
+    "test:coverage:full": "bun test --isolate --coverage-dir ./tests/coverage --coverage-reporter=text --coverage-reporter=lcov --preload ./tests/setup.ts --bail --check",
+    "test:full": "bun test --isolate --preload ./tests/setup.ts --bail --check",
     "updates": "bunx --bun npm-check-updates --dep prod,dev --cooldown 0 --install never --packageManager bun --peer"
   },
   "lint-staged": {
@@ -54,7 +54,7 @@
     "@postfmly/logoserver": "^1.3.22",
     "@postfmly/types": "^1.0.11",
     "better-profane-words": "^1.0.7",
-    "discord.js": "^14.27.0",
+    "discord.js": "^14.28.0",
     "envalid": "^9.0.0",
     "magic-regexp": "^0.11.2",
     "ts-pattern": "^5.9.2",
