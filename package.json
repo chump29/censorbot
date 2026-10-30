@@ -35,7 +35,7 @@
     "prod": "bun run --bun index.ts",
     "scan": "bun run scan:audit && bun run scan:cve && bun run scan:dupe",
     "scan:audit": "bun audit --production",
-    "scan:cve": "bunx --bun cve-lite-cli --check-maintenance --prod-only --only-used",
+    "scan:cve": "bun run --bun cve-lite --check-maintenance --prod-only --only-used",
     "scan:dupe": "bun dedupe --check",
     "test": "bun test --isolate --dots --preload ./tests/setup.ts --bail",
     "test:coverage": "bun test --isolate --dots --coverage --coverage-dir ./tests/coverage --coverage-reporter=text --coverage-reporter=lcov --preload ./tests/setup.ts --bail",
@@ -63,6 +63,7 @@
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
     "@postfmly/config": "^1.6.15",
+    "cve-lite-cli": "^1.40.0",
     "expect-type": "^1.4.0",
     "husky": "^9.1.7",
     "lcov-total": "^2.1.1",
