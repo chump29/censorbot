@@ -61,7 +61,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
-    "@postfmly/config": "^1.6.17",
+    "@postfmly/config": "^1.6.18",
     "@postfmly/types": "^1.0.12",
     "cve-lite-cli": "^1.40.0",
     "expect-type": "^1.4.0",
