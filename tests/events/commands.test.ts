@@ -6,12 +6,7 @@ import { beforeAll, describe, expect, mock, spyOn, test } from "bun:test"
 import { type Optional } from "@postfmly/types"
 
 import { fakerEN_US as fake } from "@faker-js/faker"
-import {
-  type ChatInputCommandInteraction,
-  EmbedBuilder,
-  type RESTPostAPIChatInputApplicationCommandsJSONBody,
-  type User
-} from "discord.js"
+import { type ChatInputCommandInteraction, EmbedBuilder, type User } from "discord.js"
 import { match } from "ts-pattern"
 
 import { type ICreate } from "../../events/clientReady.ts"
