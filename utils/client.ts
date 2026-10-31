@@ -97,6 +97,4 @@ class CensorClient implements ICensorClient {
   }
 }
 
-const Client: ICensorClient = new CensorClient()
-
-export { Client }
+export const Client = new CensorClient()

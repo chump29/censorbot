@@ -23,7 +23,7 @@ import {
 
 const COLOR_LEN = 6
 
-// ! NOTE: Comes from https://github.com/awdev1/better-profane-words/blob/main/index.d.ts#L18
+// * NOTE: comes from https://github.com/awdev1/better-profane-words/blob/main/index.d.ts#L18
 const MIN_LEVEL = 1
 const MAX_LEVEL = 5
 

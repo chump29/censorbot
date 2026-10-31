@@ -53,12 +53,12 @@ await Promise.all(
         expect(c.contexts ?? []).not.toBeEmpty()
       })
 
-      const [mockDeferReply, mockEditReply] = [
-        mock<ChatInputCommandInteraction["deferReply"]>(),
-        mock<ChatInputCommandInteraction["editReply"]>()
-      ]
-
       test("invoke", async (): Promise<void> => {
+        const [mockDeferReply, mockEditReply] = [
+          mock<ChatInputCommandInteraction["deferReply"]>(),
+          mock<ChatInputCommandInteraction["editReply"]>()
+        ]
+
         expect(
           await invoke(
             createMock<ChatInputCommandInteraction>({
