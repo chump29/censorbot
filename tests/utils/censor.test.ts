@@ -1,21 +1,19 @@
-import { describe, expect, jest, spyOn, test } from "bun:test"
-
-import { type Optional } from "@postfmly/types"
+import { describe, expect, mock, spyOn, test } from "bun:test"
 
 import { fakerEN_US as fake } from "@faker-js/faker"
 // biome-ignore lint/performance/noNamespaceImport: for testing
 import * as betterProfaneWords from "better-profane-words"
-import { getByIntensity, type WordEntry } from "better-profane-words"
+import { getByIntensity } from "better-profane-words"
 import { type Channel, ChannelType, type GuildMember, type Message, type User, type Webhook } from "discord.js"
 
 import { Censor } from "../../utils/censor.ts"
 import { env, MAX_LEVEL } from "../../utils/env.ts"
 
-const lengthError: RegExp = /length/v
+const lengthError = /length/v
 
 describe("censor", (): void => {
   test("init fail", (): void => {
-    const wordsSpy: jest.Mock = spyOn(betterProfaneWords, "getByIntensity").mockReturnValue([])
+    const wordsSpy = spyOn(betterProfaneWords, "getByIntensity").mockReturnValue([])
 
     expect((): void => Censor.init()).toThrow(lengthError)
 
@@ -24,18 +22,17 @@ describe("censor", (): void => {
 
   test("checkForWord pass", async (): Promise<void> => {
     const [mockDelete, mockWebhookDelete, mockWebhookSend] = [
-      jest.fn<Message["delete"]>(),
-      jest.fn<Webhook["delete"]>(),
-      jest.fn<Webhook["send"]>()
+      mock<Message["delete"]>(),
+      mock<Webhook["delete"]>(),
+      mock<Webhook["send"]>()
     ]
 
-    const words: WordEntry[] = getByIntensity(env.LEVEL, MAX_LEVEL)
-    const word: Optional<string> = words[Math.floor(Math.random() * words.length)]?.word
-    const sentence: string = fake.helpers.fake(`{{lorem.words(2)}} ${word} {{lorem.words(2)}}`)
+    const words = getByIntensity(env.LEVEL, MAX_LEVEL)
+    const word = words[Math.floor(Math.random() * words.length)]?.word
 
-    const mockMessage: Message = createMock<Message>({
+    const mockMessage = createMock<Message>({
       author: createMock<User>({
-        displayAvatarURL: jest.fn<() => string>().mockReturnValue(fake.image.avatar())
+        displayAvatarURL: mock<() => string>().mockReturnValue(fake.image.avatar())
       }),
       channel: createMock<Channel>({
         createWebhook: createMock<Webhook>({
@@ -44,7 +41,7 @@ describe("censor", (): void => {
         }),
         type: ChannelType.GuildText
       }),
-      content: sentence,
+      content: fake.helpers.fake(`{{lorem.words(2)}} ${word} {{lorem.words(2)}}`),
       delete: mockDelete,
       member: createMock<GuildMember>({
         displayName: fake.internet.displayName(),
@@ -60,7 +57,7 @@ describe("censor", (): void => {
     expect(mockWebhookDelete).toHaveBeenCalledOnce()
 
     const { calls } = mockWebhookSend.mock
-    const payload: unknown = calls?.[0]?.[0]
+    const payload = calls?.[0]?.[0]
     if (!payload || typeof payload !== "object" || !("content" in payload) || typeof payload.content !== "string") {
       throw new Error("Payload or content not found")
     }
@@ -69,7 +66,7 @@ describe("censor", (): void => {
   })
 
   test("checkForWord fail", async (): Promise<void> => {
-    const mockDelete: jest.Mock = jest.fn<Message["delete"]>()
+    const mockDelete = mock<Message["delete"]>()
 
     await Censor.checkForWord(
       createMock<Message>({

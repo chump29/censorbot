@@ -2,7 +2,7 @@ import { info } from "@postfmly/logger"
 
 import { default as pluralize } from "@jarrodek/pluralize"
 import { containsProfanity, filterText, getByIntensity } from "better-profane-words"
-import { ChannelType, type Message, type Webhook } from "discord.js"
+import { ChannelType, type Message } from "discord.js"
 
 import { env, MAX_LEVEL } from "./env.ts"
 
@@ -36,7 +36,7 @@ class CensorBot implements ICensorBot {
       await message.delete()
 
       if (message.channel.type === ChannelType.GuildText) {
-        const hook: Webhook = await message.channel.createWebhook({
+        const hook = await message.channel.createWebhook({
           avatar: message.author.displayAvatarURL(),
           name: message.member.displayName
         })
@@ -51,6 +51,4 @@ class CensorBot implements ICensorBot {
   }
 }
 
-const Censor: ICensorBot = new CensorBot()
-
-export { Censor }
+export const Censor = new CensorBot()

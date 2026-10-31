@@ -1,13 +1,12 @@
 import { readdir } from "node:fs/promises"
 import { default as path } from "node:path"
 
-import { beforeAll, describe, expect, jest, spyOn, test } from "bun:test"
+import { beforeAll, describe, expect, mock, spyOn, test } from "bun:test"
 
 import { type Optional } from "@postfmly/types"
 
 import { fakerEN_US as fake } from "@faker-js/faker"
 import {
-  type APIEmbed,
   type ChatInputCommandInteraction,
   EmbedBuilder,
   type RESTPostAPIChatInputApplicationCommandsJSONBody,
@@ -24,13 +23,13 @@ interface ICommandFile {
   invoke: (interaction: ChatInputCommandInteraction) => Promise<void>
 }
 
-const HEX_BASE: number = 16
-const COLOR_LEN: number = 6
+const HEX_BASE = 16
+const COLOR_LEN = 6
 const decimalToHex = (c: Optional<number>): string => (c ? `#${c.toString(HEX_BASE).padStart(COLOR_LEN, "0")}` : "N/A")
 
-const dir: string = "events/commands"
+const dir = "events/commands"
 
-const commands: string[] = (await readdir(dir)).filter((file: string): boolean => file.endsWith(".ts"))
+const commands = (await readdir(dir)).filter((file: string): boolean => file.endsWith(".ts"))
 
 // * NOTE: suppress console output
 spyOn(console, "info").mockImplementation((): void => undefined)
@@ -43,7 +42,7 @@ await Promise.all(
   commands.map(async (command: string): Promise<void> => {
     const { create, invoke } = (await import(`${path.join("../..", dir)}/${command}`)) satisfies ICommandFile
 
-    const name: string = path.basename(command, ".ts")
+    const name = path.basename(command, ".ts")
 
     describe(`/${name}`, (): void => {
       test("create", (): void => {
@@ -55,28 +54,29 @@ await Promise.all(
       })
 
       const [mockDeferReply, mockEditReply] = [
-        jest.fn<ChatInputCommandInteraction["deferReply"]>(),
-        jest.fn<ChatInputCommandInteraction["editReply"]>()
+        mock<ChatInputCommandInteraction["deferReply"]>(),
+        mock<ChatInputCommandInteraction["editReply"]>()
       ]
 
       test("invoke", async (): Promise<void> => {
-        const interaction = createMock<ChatInputCommandInteraction>({
-          createdTimestamp: fake.date.past().getTime(),
-          deferReply: mockDeferReply,
-          editReply: mockEditReply,
-          user: createMock<User>({
-            displayName: fake.internet.displayName(),
-            username: fake.internet.username()
-          })
-        })
-
-        expect(await invoke(interaction)).toBeUndefined()
+        expect(
+          await invoke(
+            createMock<ChatInputCommandInteraction>({
+              createdTimestamp: fake.date.past().getTime(),
+              deferReply: mockDeferReply,
+              editReply: mockEditReply,
+              user: createMock<User>({
+                displayName: fake.internet.displayName(),
+                username: fake.internet.username()
+              })
+            })
+          )
+        ).toBeUndefined()
 
         expect(mockDeferReply).toHaveBeenCalledOnce()
         expect(mockEditReply).toHaveBeenCalledOnce()
 
-        const { calls } = mockEditReply.mock
-        const payload: unknown = calls[0]?.[0]
+        const payload = mockEditReply.mock.calls[0]?.[0]
         if (!payload || typeof payload !== "object") {
           throw new Error("Payload not found")
         }
@@ -92,7 +92,7 @@ await Promise.all(
               throw new Error("Embed not found")
             }
 
-            const { data }: { data: APIEmbed } = EmbedBuilder.from(embed)
+            const { data } = EmbedBuilder.from(embed)
 
             expect(decimalToHex(data.color)).toBe(env.COLOR)
             expect(data.author?.icon_url).toBe(env.LOGO_URL)

@@ -21,21 +21,21 @@ import {
   union
 } from "valibot"
 
-const COLOR_LEN: number = 6
+const COLOR_LEN = 6
 
 // ! NOTE: Comes from https://github.com/awdev1/better-profane-words/blob/main/index.d.ts#L18
-const MIN_LEVEL: number = 1
-const MAX_LEVEL: Intensity = 5
+const MIN_LEVEL = 1
+const MAX_LEVEL = 5
 
-const MIN_PORT: number = 1024
-const MAX_PORT: number = 65_535
+const MIN_PORT = 1024
+const MAX_PORT = 65_535
 
-const UID_MIN_LEN: number = 23
-const UID_MAX_LEN: number = 28
-const TS_MIN_LEN: number = 6
-const TS_MAX_LEN: number = 7
-const HMAC_MIN_LEN: number = 27
-const HMAC_MAX_LEN: number = 38
+const UID_MIN_LEN = 23
+const UID_MAX_LEN = 28
+const TS_MIN_LEN = 6
+const TS_MAX_LEN = 7
+const HMAC_MIN_LEN = 27
+const HMAC_MAX_LEN = 38
 
 const StringSchema = pipe(string(), trim(), nonEmpty())
 const ColorSchema = pipe(
@@ -94,7 +94,7 @@ if (Bun.env.NODE_ENV === "test") {
 
   fakeURL = fake.image.url({ height: 64, width: 64 })
 
-  const chars: string = "[a-zA-Z0-9]"
+  const chars = "[a-zA-Z0-9]"
   fakeToken = fake.helpers.fromRegExp(
     `${chars}{${UID_MIN_LEN},${UID_MAX_LEN}}[.]${chars}{${TS_MIN_LEN},${TS_MAX_LEN}}[.]${chars}{${HMAC_MIN_LEN},${HMAC_MAX_LEN}}`
   )
