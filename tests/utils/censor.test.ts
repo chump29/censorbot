@@ -4,7 +4,7 @@ import { fakerEN_US as fake } from "@faker-js/faker"
 // biome-ignore lint/performance/noNamespaceImport: for testing
 import * as betterProfaneWords from "better-profane-words"
 import { getByIntensity } from "better-profane-words"
-import { type Channel, ChannelType, type GuildMember, type Message, type User, type Webhook } from "discord.js"
+import { ChannelType, type GuildMember, type Message, type Webhook } from "discord.js"
 
 import { Censor } from "../../utils/censor.ts"
 import { env, MAX_LEVEL } from "../../utils/env.ts"
@@ -31,22 +31,24 @@ describe("censor", (): void => {
     const word = words[Math.floor(Math.random() * words.length)]?.word
 
     const mockMessage = createMock<Message>({
-      author: createMock<User>({
-        displayAvatarURL: mock<() => string>().mockReturnValue(fake.image.avatar())
+      content: fake.helpers.fake(`{{lorem.words(2)}} ${word} {{lorem.words(2)}}`),
+      delete: mockDelete,
+      member: createMock<GuildMember>({
+        displayName: fake.internet.displayName(),
+        user: {
+          bot: false
+        }
       }),
-      channel: createMock<Channel>({
+      author: {
+        displayAvatarURL: mock<() => string>().mockReturnValue(fake.image.avatar())
+      },
+      channel: {
         createWebhook: createMock<Webhook>({
           delete: mockWebhookDelete,
           send: mockWebhookSend
         }),
         type: ChannelType.GuildText
-      }),
-      content: fake.helpers.fake(`{{lorem.words(2)}} ${word} {{lorem.words(2)}}`),
-      delete: mockDelete,
-      member: createMock<GuildMember>({
-        displayName: fake.internet.displayName(),
-        user: createMock<User>({ bot: false })
-      })
+      }
     })
 
     await Censor.checkForWord(mockMessage)
@@ -72,7 +74,9 @@ describe("censor", (): void => {
       createMock<Message>({
         delete: mockDelete,
         member: createMock<GuildMember>({
-          user: createMock<User>({ bot: true })
+          user: {
+            bot: true
+          }
         })
       })
     )
