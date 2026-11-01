@@ -104,6 +104,7 @@ const env = cleanEnv(Bun.env, {
   LOGO_PORT: portValidator({ default: "random" }),
   LOGO_URL: url({ testDefault: fakeURL }),
   NAME: str({ default: "CensorBot" }),
+  TEST_FULL: bool({ default: false }),
   TOKEN: tokenValidator({ testDefault: fakeToken })
 })
 

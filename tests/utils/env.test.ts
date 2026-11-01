@@ -10,7 +10,7 @@ import { env } from "../../utils/env.ts"
 
 describe("env", (): void => {
   test("ACTIVITY", (): void => {
-    expectTypeOf(env.ACTIVITY).toEqualTypeOf<string>()
+    expect(env.ACTIVITY).toBeString()
 
     expect(env.ACTIVITY.length).toBeGreaterThan(0)
   })
@@ -24,7 +24,7 @@ describe("env", (): void => {
   })
 
   test("DEBUG", (): void => {
-    expectTypeOf(env.DEBUG).toEqualTypeOf<boolean>()
+    expect(env.DEBUG).toBeBoolean()
 
     expect(env.DEBUG).toBeTrue()
   })
@@ -36,13 +36,13 @@ describe("env", (): void => {
   })
 
   test("LOGO_NAME", (): void => {
-    expectTypeOf(env.LOGO_NAME).toEqualTypeOf<string>()
+    expect(env.LOGO_NAME).toBeString()
 
     expect(env.LOGO_NAME.length).toBeGreaterThan(0)
   })
 
   test("LOGO_PATH", (): void => {
-    expectTypeOf(env.LOGO_PATH).toEqualTypeOf<string>()
+    expect(env.LOGO_PATH).toBeString()
 
     expect(env.LOGO_PATH.length).toBeGreaterThan(0)
   })
@@ -54,19 +54,23 @@ describe("env", (): void => {
   })
 
   test("LOGO_URL", (): void => {
-    expectTypeOf(env.LOGO_URL).toEqualTypeOf<string>()
+    expect(env.LOGO_URL).toBeString()
 
     expect(env.LOGO_URL.length).toBeGreaterThan(0)
   })
 
   test("NAME", (): void => {
-    expectTypeOf(env.NAME).toEqualTypeOf<string>()
+    expect(env.NAME).toBeString()
 
     expect(env.NAME.length).toBeGreaterThan(0)
   })
 
+  test("TEST_FULL", (): void => {
+    expect(env.TEST_FULL).toBeBoolean()
+  })
+
   test("TOKEN", (): void => {
-    expectTypeOf(env.TOKEN).toEqualTypeOf<string>()
+    expect(env.TOKEN).toBeString()
 
     expect(env.TOKEN.length).toBeGreaterThan(0)
   })
