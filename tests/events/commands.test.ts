@@ -59,7 +59,6 @@ await Promise.all(
               deferReply: mockDeferReply,
               editReply: mockEditReply,
               user: {
-                displayName: fake.internet.displayName(),
                 username: fake.internet.username()
               }
             })
